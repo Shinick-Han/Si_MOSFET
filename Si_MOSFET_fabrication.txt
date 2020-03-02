@@ -4,7 +4,8 @@
 math coord.ucs
 # Declare initial grid (half structure)
 # -------------------------------------
-
+# spacing defines the spacing between two grid lines at the specified location
+# Between two locations defined in the line command, Sentaurus Process expands or compresses the grid spacing linearly
 line x location= 0.0      spacing= 1.0<nm>  tag=SiTop        
 line x location=50.0<nm>  spacing=10.0<nm>                    
 line x location= 0.5<um>  spacing=50.0<nm>                      
@@ -17,19 +18,23 @@ line y location=0.40<um>  spacing=50.0<nm>  tag=Right
 
 # Silicon substrate definition
 # ----------------------------
-
+# Silicon specifies the material of the region
 region Silicon xlo=SiTop xhi=SiBottom ylo=Mid yhi=Right
 
 # Initialize the simulation
 # -------------------------
-
+# The initial Phosphorus concentration in the silicon wafer is set to 1.0e+15<cm-3>
+# The wafer orientation is set to be (100), which is the default
 init concentration=1.0e+15<cm-3> field=Phosphorus
 
 # p-well, anti-punchthrough & Vt adjustment implants
 # --------------------------------------------------
 
+# creating p-well with high-energy implantation
 implant  Boron  dose=2.0e13<cm-2>  energy=200<keV> tilt=0 rotation=0  
+# define retrograde boron doping profile to prevent punch-through with medium-energy implantation
 implant  Boron  dose=1.0e13<cm-2>  energy= 80<keV> tilt=0 rotation=0  
+# Threshold voltage adjustment with low-energy implantation
 implant  Boron  dose=2.0e12<cm-2>  energy= 25<keV> tilt=0 rotation=0  
 
 # p-well: RTA of channel implants
