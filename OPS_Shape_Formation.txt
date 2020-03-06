@@ -1,0 +1,55 @@
+# OPS_Shape_Formation
+# ------------------------------
+
+math coord.ucs
+# Declare initial grid (half structure)
+# -------------------------------------
+
+line y location= 0.0      spacing= 10.0<nm>  tag=SiTop                               
+line y location=50.0<nm>  spacing= 20.0<nm>     
+line y location=1.34<um>  spacing= 50<nm>	tag=SiBottom
+line x location=0.0       spacing=10.0<nm>  tag=Mid         
+line x location=2.25<um>  spacing=70.0<nm>  tag=Right      
+
+# Silicon substrate definition
+# ----------------------------
+
+region Silicon ylo=SiTop yhi=SiBottom xlo=Mid xhi=Right
+
+# Initialize the simulation
+# -------------------------
+
+init field = boron silicon resistivity = 10
+
+mgoals min.normal.size=5<nm> max.lateral.size=6.0<um> normal.growth.ratio=2 \
+       accuracy=1e-4
+
+pdbSet Oxide Grid perp.add.dist 1e-7
+pdbSet Grid NativeLayerThickness 1e-7
+
+deposit material= {Oxide} thickness = 100<nm> steps = 10
+
+deposit material= {Silicon} thickness = 300<nm> steps = 30
+mask name=gate_mask left=1.103<um> right=2<um>
+etch material= {Silicon} type = anisotropic thickness = 120<nm> mask=gate_mask
+mask name=mask1 segments= { -1 0.5 1.103 2 }
+etch material= {Silicon} type = anisotropic thickness = 90<nm> mask=mask1
+deposit material= {Oxide} thickness = 50<nm> steps = 5
+mask name=mask2 left=-1<um> right=1.19<um>
+etch material= {Oxide} type = anisotropic thickness = 55<nm> mask=mask2
+transform reflect right
+beam name= src1 direction= {1 0 0} factor= 1
+etch type = angles.rates sources= src1 time = 0.22<min> angles.rates= { Silicon= { 25 1.0 45 0.3 } }
+deposit material= {InP} thickness = 200<nm> steps = 10
+etch type= cmp coord= -0.399<um> material= all
+deposit material= {Oxide} thickness = 20<nm> steps = 2
+mask name=mask3 segments= { -1 1.103 1.571 3 }
+mask name=mask3 negative
+etch material= {Oxide} type = anisotropic thickness = 150<nm> mask=mask3
+etch material= {InP} type= isotropic thickness = 200<nm>
+etch material= {Oxide} type= anisotropic thickness = 300<nm>
+
+
+struct tdr=n@node@_OPS ; 
+
+exit

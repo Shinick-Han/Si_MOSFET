@@ -1,0 +1,72 @@
+# 20nm_Channel length_NMOS
+# ------------------------------
+
+math coord.ucs
+# Declare initial grid (half structure)
+# -------------------------------------
+
+line y location= 0.0      spacing= 5.0<nm>  tag=SiTop        
+line y location=10.0<nm>  spacing=5.0<nm>                    
+line y location= 30.0<nm>  spacing=5.0<nm>                       
+line y location=70.0<nm>  spacing= 5.0<nm>  tag=SiBottom   
+
+line x location=0.0       spacing=5.0<nm>  tag=Mid         
+line x location=0.25<um>  spacing=50.0<nm>  tag=Right       
+
+# Silicon substrate definition
+# ----------------------------
+
+region Silicon ylo=SiTop yhi=SiBottom xlo=Mid xhi=Right
+
+# Initialize the simulation
+# -------------------------
+
+init field = boron silicon resistivity = 10
+
+# Global Mesh settings for automatic meshing in newly generated layers
+# --------------------------------------------------------------------
+
+mgoals min.normal.size=3<nm> max.lateral.size=6.0<um> normal.growth.ratio=1.5 \
+       accuracy=1e-5
+
+pdbSet Oxide Grid perp.add.dist 1e-7
+pdbSet Grid NativeLayerThickness 1e-7
+
+# Gate oxidation/nitride
+# --------------
+
+deposit material= {Oxide} thickness = 20<nm> steps = 10
+mask name=gate_mask left=-1 right=40<nm>
+etch material= {Oxide} type = anisotropic thickness = 20<nm> mask=gate_mask
+deposit material= {Nitride} thickness = 20<nm> steps = 10
+transform reflect right
+implant  Boron  dose=5.0e14<cm-2>  energy=10<keV> tilt=7 rotation=360 iBCA
+etch material= {Nitride} type = anisotropic thickness=20<nm>
+
+deposit material= {Oxynitride} thickness=1.5<nm> steps = 2
+deposit material= {Polysilicon} thickness=20<nm> steps = 10
+etch material= {Polysilicon} type = anisotropic thickness=20<nm>
+etch material= {Oxynitride} type = anisotropic thickness=1.5<nm>
+etch material= {Oxide} type = anisotropic thickness=20<nm>
+deposit material= {Polysilicon} thickness=20<nm> steps = 10
+deposit material= {Oxide} thickness=4<nm> steps = 2
+implant  Arsenic  dose=1.0e16<cm-2>  energy=10<keV> tilt=7 rotation=360 iBCA
+diffuse temperature=750<C> time=6.0<s> N2 ramprate=50<C/s>
+diffuse temperature=1050<C> time=17.0<s> N2
+etch material= {Oxide} type = anisotropic thickness = 12<nm>
+etch material= {Polysilicon} type = anisotropic thickness = 24<nm>
+deposit material= {Cobalt} thickness=20<nm> steps = 10
+diffuse temperature=400<C> time=0.05<min> N2
+etch material= {Cobalt} type = isotropic thickness = 25<nm>
+etch material= {Polysilicon} type = anisotropic thickness = 2<nm>
+deposit material= {Aluminum} thickness=10<nm> steps = 1
+mask name=mask1 segments= { -1 0.035 0.055 0.085 0.105 1}
+etch material= {Aluminum} type = anisotropic thickness = 60<nm> mask=mask1
+struct tdr=n@node@_NMOS3 ; # Poly Reox
+contact name= gate x= -0.0105 y= 0.07 replace point
+contact name= source x= -0.005 y= 0.016 replace point
+contact name= drain x= -0.005 y= 0.128 replace point
+contact bottom name= substrate
+
+struct tdr=n@node@_NMOS4 ; 
+exit
